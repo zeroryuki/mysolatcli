@@ -44,10 +44,7 @@ def jadual_lokasi(args):
 def info_zon(args, fields=["zone","negeri","lokasi"]):
 
     def jadual_negeri(negeri):
-        if negeri:
-            fetch_state = api.get_negeri(args.negeri)
-        else:
-            fetch_state = api.get_negeri()
+        fetch_state = api.get_negeri(args.negeri) if args.negeri else api.get_negeri()
 
         states = pyjq.one(".states", fetch_state)
         myzone = []
@@ -86,12 +83,12 @@ def parse_args():
     """
     ArgumentParser()
     parser = ArgumentParser(
-        prog="solat",
+        prog="mysolatcli",
         description="Simple CLI tools for Malaysia Prayer Time"
         
     )
     parser.set_defaults(command=None)
-    command_parsers = parser.add_subparsers(title="commands", prog="solat")
+    command_parsers = parser.add_subparsers(title="commands", prog="mysolatcli")
 
     jadual_parser = command_parsers.add_parser("jadual", help="Prayer time by location/state")
     jadual_parser.add_argument("-l","--lokasi", required=True, metavar="lokasi",  type=str, help="Show table based on location (Ex: gombak)")
