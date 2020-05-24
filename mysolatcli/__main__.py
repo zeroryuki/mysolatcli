@@ -24,8 +24,15 @@ def format_value(val):
     return val
 
 def get_zon(lokasi):
+    sp.start()
     zon = api.get_zones()
     zone = pyjq.all(".results[]|select(.lokasi == $lokasi)", zon, vars={"lokasi": lokasi})
+    if zone == []:
+       #print("Lokasi not in any zone. Please try with another location")
+       sp.red.fail("✘")
+       print("Lokasi not in any zone. Please try with another location")
+       sys.exit()
+    sp.ok()
     return zone[0]['zone']
 
 def data_for_jadual(data,fields):
@@ -33,7 +40,6 @@ def data_for_jadual(data,fields):
     return data_format
 
 def jadual_lokasi(args):
-    sp.start()
     lok = get_zon(args.lokasi.title())
     if args.fields:
        fields = ["tarikh"] + args.fields or ["tarikh","subuh","zohor","asar","maghrib","isyak"]
@@ -41,7 +47,6 @@ def jadual_lokasi(args):
     data = pyjq.all(".prayer_times[]|{tarikh:.date,subuh:.subuh,zohor:.zohor,asar:.asar,maghrib:.maghrib,isyak:.isyak}", api.get_week(lok)) if args.minggu else pyjq.one(".|[{tarikh:.prayer_times.date,subuh:.prayer_times.subuh,zohor:.prayer_times.zohor,asar:.prayer_times.asar, maghrib:.prayer_times.maghrib,isyak:.prayer_times.isyak}]", api.get_today(lok))
 
     data_format = data_for_jadual(data,fields)
-    sp.ok()
     print(tabulate(data_format,fields,tablefmt="fancy_grid"))
 
 def info_zon(args, fields=["zone","negeri","lokasi"]):
