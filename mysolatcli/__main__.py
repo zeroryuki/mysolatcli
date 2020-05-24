@@ -1,12 +1,14 @@
-from mysolatcli import SolatAPI
 import argparse
-from argparse import ArgumentParser
 import sys
-from tabulate import tabulate
 import pyjq
 import json
+from mysolatcli import SolatAPI
+from yaspin import yaspin
+from argparse import ArgumentParser
+from tabulate import tabulate
 
 api = None
+sp = yaspin(text="Fetching Data..", color="green")
 
 def init_api():
     global api
@@ -31,7 +33,7 @@ def data_for_jadual(data,fields):
     return data_format
 
 def jadual_lokasi(args):
-
+    sp.start()
     lok = get_zon(args.lokasi.title())
     if args.fields:
        fields = ["tarikh"] + args.fields or ["tarikh","subuh","zohor","asar","maghrib","isyak"]
@@ -39,6 +41,7 @@ def jadual_lokasi(args):
     data = pyjq.all(".prayer_times[]|{tarikh:.date,subuh:.subuh,zohor:.zohor,asar:.asar,maghrib:.maghrib,isyak:.isyak}", api.get_week(lok)) if args.minggu else pyjq.one(".|[{tarikh:.prayer_times.date,subuh:.prayer_times.subuh,zohor:.prayer_times.zohor,asar:.prayer_times.asar, maghrib:.prayer_times.maghrib,isyak:.prayer_times.isyak}]", api.get_today(lok))
 
     data_format = data_for_jadual(data,fields)
+    sp.ok()
     print(tabulate(data_format,fields,tablefmt="fancy_grid"))
 
 def info_zon(args, fields=["zone","negeri","lokasi"]):
@@ -48,10 +51,15 @@ def info_zon(args, fields=["zone","negeri","lokasi"]):
 
         states = pyjq.one(".states", fetch_state)
         myzone = []
+
+        sp.start()
         for i in range(len(states)):
             fetch_zon = api.get_negeri(str(states[i]))
             data = pyjq.all(".results[]", fetch_zon)
             myzone.append(data)
+            sp.hide()
+            sp.write(states[i] + "✅")
+        sp.ok()
 
         zon_formatted = pyjq.all(".[][]", myzone)
         data_format = data_for_jadual(zon_formatted,fields)
@@ -60,11 +68,13 @@ def info_zon(args, fields=["zone","negeri","lokasi"]):
     if args.zonkod is None:
         jadual_negeri(args.negeri)
     else:
+        sp.start()
         fetch_zon = api.get_today(args.zonkod)
         data = pyjq.one(".|{zone,tarikh:.prayer_times.date,locations,azan:{subuh:.prayer_times.subuh,zohor: .prayer_times.zohor, asar: .prayer_times.asar, maghrib:.prayer_times.maghrib, isyak:.prayer_times.isyak}}",fetch_zon)
         fields = data.keys()
         vals = list(map(lambda x: format_value(data[x]), fields))
         items = list(zip(fields, vals))
+        sp.ok()
         print(tabulate(items, tablefmt="fancy_grid"))
 
 def show_help(parser, command=None):
