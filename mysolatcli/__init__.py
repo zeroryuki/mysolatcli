@@ -1,9 +1,19 @@
 """
 A wrapper around the api.azanpro.com
 """
-import requests
+import requests,time
+import requests_cache
+from datetime import datetime,timedelta
 
-__version__ = '1.0.0'
+def secondsinday():
+    time_delta = datetime.combine(
+        datetime.now().date() + timedelta(days=1), datetime.strptime("0000", "%H%M").time()
+    ) - datetime.now()
+    return time_delta.seconds
+
+requests_cache.install_cache('mysolat_cache',expire_after=secondsinday())
+
+__version__ = '1.1.0'
 
 class SolatAPIError(Exception):
     """Raised when API fails"""

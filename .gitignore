@@ -1,2 +1,4 @@
 mysolat.py
 *pycache*
+*.sqlite
+*test.py

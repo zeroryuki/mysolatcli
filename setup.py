@@ -12,7 +12,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='mysolatcli',
-    version='1.0.0',
+    version='1.1.0',
 
     description='CLI for Malaysia Solat Time',
     long_description=long_description,
@@ -38,5 +38,5 @@ setup(
 
     packages=find_packages(),
 
-    install_requires=['requests', 'argparse', 'tabulate', 'pyjq'],
+    install_requires=['requests', 'requests_cache', 'argparse', 'tabulate', 'pyjq'],
 )

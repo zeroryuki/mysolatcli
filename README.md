@@ -11,6 +11,7 @@ Usage
 ```bash
 pip install . --user
 ```
+![](mysolat.gif)
 
 **Jadual**
 
